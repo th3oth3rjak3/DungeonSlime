@@ -2,19 +2,13 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
+using MonoGameLibrary;
+
 namespace DungeonSlime;
 
-public class DungeonSlime : Game
+public class DungeonSlime : Core
 {
-    private GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
-
-    public DungeonSlime()
-    {
-        _graphics = new GraphicsDeviceManager(this);
-        Content.RootDirectory = "Content";
-        IsMouseVisible = true;
-    }
+    public DungeonSlime() : base("Dungeon Slime", 1280, 720, false) { }
 
     protected override void Initialize()
     {
@@ -25,9 +19,9 @@ public class DungeonSlime : Game
 
     protected override void LoadContent()
     {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
-
         // TODO: use this.Content to load your game content here
+
+        base.LoadContent();
     }
 
     protected override void Update(GameTime gameTime)
