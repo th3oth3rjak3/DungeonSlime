@@ -3,12 +3,14 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 using MonoGameLibrary;
+using MonoGameLibrary.Graphics;
 
 namespace DungeonSlime;
 
 public class DungeonSlime : Core
 {
-    private Texture2D? _logo;
+    private TextureRegion _slime = new();
+    private TextureRegion _bat = new();
 
     public DungeonSlime() : base("Dungeon Slime", 1280, 720, false) { }
 
@@ -21,8 +23,9 @@ public class DungeonSlime : Core
 
     protected override void LoadContent()
     {
-        // TODO: use the MGCB tool to load the logo from the tutorial.
-        _logo = Content.Load<Texture2D>("images/logo");
+        var atlas = TextureAtlas.FromFile(Content, "images/atlas-definition.xml");
+        _slime = atlas.GetRegion("slime");
+        _bat = atlas.GetRegion("bat");
 
         base.LoadContent();
     }
@@ -41,19 +44,10 @@ public class DungeonSlime : Core
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        SpriteBatch.Begin();
+        SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-        SpriteBatch.Draw(
-            _logo,
-            new Vector2(Window.ClientBounds.Width, Window.ClientBounds.Height) * 0.5f,
-            null,
-            Color.White,
-            MathHelper.ToRadians(0),
-            new Vector2(_logo?.Width ?? 0, _logo?.Height ?? 0) * 0.5f,
-            1.0f,
-            SpriteEffects.None,
-            0.0f
-        );
+        _slime.Draw(SpriteBatch, Vector2.Zero, Color.White, 0.0f, Vector2.One, 4.0f, SpriteEffects.None, 0.0f);
+        _bat.Draw(SpriteBatch, new Vector2(_slime.Width * 4.0f + 10, 0), Color.White, 0.0f, Vector2.One, 4.0f, SpriteEffects.None, 1.0f);
 
         SpriteBatch.End();
 
