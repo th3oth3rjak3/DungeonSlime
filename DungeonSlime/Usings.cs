@@ -3,3 +3,5 @@ global using Microsoft.Xna.Framework.Graphics;
 global using Microsoft.Xna.Framework.Input;
 global using MonoGameLibrary;
 global using MonoGameLibrary.Graphics;
+global using MonoGameLibrary.Input;
+global using System;

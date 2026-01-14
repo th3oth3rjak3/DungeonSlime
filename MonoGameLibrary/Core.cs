@@ -1,10 +1,4 @@
-﻿using System;
-
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-
-namespace MonoGameLibrary;
+﻿namespace MonoGameLibrary;
 
 public class Core : Game
 {
@@ -13,6 +7,7 @@ public class Core : Game
     private static GraphicsDevice? s_GraphicsDevice;
     private static SpriteBatch? s_SpriteBatch;
     private static ContentManager? s_Content;
+    private static InputManager? s_Input;
 
 
     /// <summary>
@@ -61,6 +56,21 @@ public class Core : Game
     }
 
     /// <summary>
+    /// Gets a reference to the input management system.
+    /// </summary>
+    public static InputManager Input
+    {
+        get => s_Input
+            ?? throw new NullReferenceException("A core instance must be created before Input can be called");
+        private set => s_Input = value;
+    }
+
+    /// <summary>
+    /// Gets or Sets a value that indicates if the game should exit when the esc key on the keyboard is pressed.
+    /// </summary>
+    public static bool ExitOnEscape { get; set; }
+
+    /// <summary>
     /// Creates a new Core instance.
     /// </summary>
     /// <param name="title">The title to display.</param>
@@ -100,6 +110,9 @@ public class Core : Game
 
         // Enable mouse visibility by default.
         IsMouseVisible = true;
+
+        // Exit on escape is true by default.
+        ExitOnEscape = true;
     }
 
     /// <summary>
@@ -114,5 +127,21 @@ public class Core : Game
 
         // Create a new sprite batch instance.
         SpriteBatch = new SpriteBatch(GraphicsDevice);
+
+        // Create a new InputManager
+        Input = new InputManager();
+    }
+
+    protected override void Update(GameTime gameTime)
+    {
+        // Update the input manager.
+        Input.Update(gameTime);
+
+        if (ExitOnEscape && Input.Keyboard.IsKeyDown(Keys.Escape))
+        {
+            Exit();
+        }
+
+        base.Update(gameTime);
     }
 }
