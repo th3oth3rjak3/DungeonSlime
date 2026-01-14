@@ -1,18 +1,12 @@
 ﻿// https://github.com/MonoGame/MonoGame.Samples/blob/3.8.4/Tutorials/learn-monogame-2d
-
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-
-using MonoGameLibrary;
-using MonoGameLibrary.Graphics;
+using System.Runtime.CompilerServices;
 
 namespace DungeonSlime;
 
 public class DungeonSlime : Core
 {
-    private TextureRegion _slime = new();
-    private TextureRegion _bat = new();
+    private Sprite _slime = new();
+    private Sprite _bat = new();
 
     public DungeonSlime() : base("Dungeon Slime", 1280, 720, false) { }
 
@@ -26,8 +20,11 @@ public class DungeonSlime : Core
     protected override void LoadContent()
     {
         var atlas = TextureAtlas.FromFile(Content, "images/atlas-definition.xml");
-        _slime = atlas.GetRegion("slime");
-        _bat = atlas.GetRegion("bat");
+        _slime = atlas.CreateSprite("slime");
+        _slime.Scale = Vector2.One * 4.0f;
+
+        _bat = atlas.CreateSprite("bat");
+        _bat.Scale = Vector2.One * 4.0f;
 
         base.LoadContent();
     }
@@ -48,8 +45,8 @@ public class DungeonSlime : Core
 
         SpriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-        _slime.Draw(SpriteBatch, Vector2.Zero, Color.White, 0.0f, Vector2.One, 4.0f, SpriteEffects.None, 0.0f);
-        _bat.Draw(SpriteBatch, new Vector2(_slime.Width * 4.0f + 10, 0), Color.White, 0.0f, Vector2.One, 4.0f, SpriteEffects.None, 1.0f);
+        _slime.Draw(SpriteBatch, Vector2.Zero);
+        _bat.Draw(SpriteBatch, new Vector2(_slime.Width + 10, 0));
 
         SpriteBatch.End();
 

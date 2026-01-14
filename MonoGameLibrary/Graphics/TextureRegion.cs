@@ -1,7 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-
-namespace MonoGameLibrary.Graphics;
+﻿namespace MonoGameLibrary.Graphics;
 
 /// <summary>
 /// Represents a rectangular region within a texture.
@@ -122,6 +119,11 @@ public class TextureRegion
         SpriteEffects effects,
         float layerDepth)
     {
+        if (Texture is null)
+        {
+            throw new NullReferenceException("Cannot draw a null Texture");
+        }
+
         spriteBatch.Draw(
             Texture,
             position,

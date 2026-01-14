@@ -1,26 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Xml;
-using System.Xml.Linq;
-
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
-
-namespace MonoGameLibrary.Graphics;
+﻿namespace MonoGameLibrary.Graphics;
 
 public class TextureAtlas
 {
     /// <summary>
     /// A collection of all the texture regions managed by this atlas.
     /// </summary>
-    private Dictionary<string, TextureRegion> _regions;
+    private readonly Dictionary<string, TextureRegion> _regions;
 
     /// <summary>
     /// Gets or sets the source texture represented by this texture atlas.
     /// </summary>
-    public Texture2D? Texture { get; set; }
+    public required Texture2D Texture { get; set; }
 
     /// <summary>
     /// Creates a new texture atlas to be configured later.
@@ -66,7 +56,12 @@ public class TextureAtlas
     /// <returns>The TextureRegion with the specified name.</returns>
     public TextureRegion GetRegion(string name)
     {
-        return _regions[name];
+        if (_regions.TryGetValue(name, out var texture))
+        {
+            return texture;
+        }
+
+        throw new InvalidDataException($"Region does not exist: {name}");
     }
 
     /// <summary>
@@ -95,8 +90,6 @@ public class TextureAtlas
     /// <returns>A new texture atlas.</returns>
     public static TextureAtlas FromFile(ContentManager content, string fileName)
     {
-        var atlas = new TextureAtlas();
-
         string filePath = Path.Combine(content.RootDirectory, fileName);
 
         using var stream = TitleContainer.OpenStream(filePath);
@@ -110,7 +103,10 @@ public class TextureAtlas
         var texturePath = root.Element("Texture")?.Value
             ?? throw new InvalidDataException("Texture configuration incorrect, missing Texture element");
 
-        atlas.Texture = content.Load<Texture2D>(texturePath);
+        var atlas = new TextureAtlas()
+        {
+            Texture = content.Load<Texture2D>(texturePath),
+        };
 
         // The <Regions> element contains individual <Region> elements, each one describing
         // a different texture region within the atlas.
@@ -148,5 +144,16 @@ public class TextureAtlas
         }
 
         return atlas;
+    }
+
+    /// <summary>
+    /// Creates a new sprite using the region from this texture atlas with the specified name.
+    /// </summary>
+    /// <param name="regionName">The name of the region to create the sprite with.</param>
+    /// <returns>A new Sprite using the texture region with the specified name.</returns>
+    public Sprite CreateSprite(string regionName)
+    {
+        TextureRegion region = GetRegion(regionName);
+        return new Sprite(region);
     }
 }
