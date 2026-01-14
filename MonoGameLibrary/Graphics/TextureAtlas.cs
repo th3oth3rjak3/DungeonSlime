@@ -8,6 +8,11 @@ public class TextureAtlas
     private readonly Dictionary<string, TextureRegion> _regions;
 
     /// <summary>
+    /// A collection of animations for each texture region managed by this atlas.
+    /// </summary>
+    private readonly Dictionary<string, Animation> _animations;
+
+    /// <summary>
     /// Gets or sets the source texture represented by this texture atlas.
     /// </summary>
     public required Texture2D Texture { get; set; }
@@ -18,6 +23,7 @@ public class TextureAtlas
     public TextureAtlas()
     {
         _regions = [];
+        _animations = [];
     }
 
     /// <summary>
@@ -28,6 +34,7 @@ public class TextureAtlas
     {
         Texture = texture;
         _regions = [];
+        _animations = [];
     }
 
     /// <summary>
@@ -80,6 +87,41 @@ public class TextureAtlas
     public void Clear()
     {
         _regions.Clear();
+    }
+
+    /// <summary>
+    /// Adds the given animation to this texture atlas with the specified name.
+    /// </summary>
+    /// <param name="animationName">The name of the animation to add.</param>
+    /// <param name="animation">The animation to add.</param>
+    public void AddAnimation(string animationName, Animation animation)
+    {
+        _animations.Add(animationName, animation);
+    }
+
+    /// <summary>
+    /// Gets the animation from this texture atlas with the specified name.
+    /// </summary>
+    /// <param name="animationName">The name of the animation to retrieve.</param>
+    /// <returns>The animation with the specified name.</returns>
+    public Animation GetAnimation(string animationName)
+    {
+        if (_animations.TryGetValue(animationName, out var animation))
+        {
+            return animation;
+        }
+
+        throw new InvalidDataException($"Animation does not exist: {animationName}");
+    }
+
+    /// <summary>
+    /// Removes the animation with the specified name from this texture atlas.
+    /// </summary>
+    /// <param name="animationName">The name of the animation to remove.</param>
+    /// <returns>true if the animation is removed successfully; otherwise, false.</returns>
+    public bool RemoveAnimation(string animationName)
+    {
+        return _animations.Remove(animationName);
     }
 
     /// <summary>
@@ -143,6 +185,49 @@ public class TextureAtlas
             atlas.AddRegion(name, x, y, width, height);
         }
 
+        // The <Animations> element contains individual <Animation> elements, each one describing
+        // a different animation within the atlas.
+        //
+        // Example:
+        // <Animations>
+        //      <Animation name="animation" delay="100">
+        //          <Frame region="spriteOne" />
+        //          <Frame region="spriteTwo" />
+        //      </Animation>
+        // </Animations>
+        //
+        // So we retrieve all of the <Animation> elements then loop through each one
+        // and generate a new Animation instance from it and add it to this atlas.
+        var animationElements = root.Element("Animations")?.Elements("Animation") ?? [];
+
+        foreach (var animationElement in animationElements)
+        {
+            var name = animationElement.Attribute("name")?.Value
+                ?? throw new InvalidDataException("Animation configuration incorrect, Animation element requires the name property");
+
+            float delayInMilliseconds = float.Parse(animationElement.Attribute("delay")?.Value
+                ?? throw new InvalidDataException("Animation configuration incorrect, Animation element requires the delay property"));
+
+            var delay = TimeSpan.FromMilliseconds(delayInMilliseconds);
+
+            List<TextureRegion> frames = [];
+
+            var frameElements = animationElement.Elements("Frame") ??
+                throw new InvalidDataException("Animation configuration incorrect. Animation must have Frame elements.");
+
+            foreach (var frameElement in frameElements)
+            {
+                var regionName = frameElement.Attribute("region")?.Value
+                    ?? throw new InvalidDataException("Animation configuration incorrect. Frame must have a region property.");
+
+                TextureRegion region = atlas.GetRegion(regionName);
+                frames.Add(region);
+            }
+
+            var animation = new Animation(frames, delay);
+            atlas.AddAnimation(name, animation);
+        }
+
         return atlas;
     }
 
@@ -153,7 +238,18 @@ public class TextureAtlas
     /// <returns>A new Sprite using the texture region with the specified name.</returns>
     public Sprite CreateSprite(string regionName)
     {
-        TextureRegion region = GetRegion(regionName);
+        var region = GetRegion(regionName);
         return new Sprite(region);
+    }
+
+    /// <summary>
+    /// Creates a new animated sprite using the animation from this texture atlas with the specified name.
+    /// </summary>
+    /// <param name="animationName">The name of the animation to use.</param>
+    /// <returns>A new AnimatedSprite using the animation with the specified name.</returns>
+    public AnimatedSprite CreateAnimatedSprite(string animationName)
+    {
+        var animation = GetAnimation(animationName);
+        return new AnimatedSprite(animation);
     }
 }

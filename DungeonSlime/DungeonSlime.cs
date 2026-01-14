@@ -1,12 +1,10 @@
 ﻿// https://github.com/MonoGame/MonoGame.Samples/blob/3.8.4/Tutorials/learn-monogame-2d
-using System.Runtime.CompilerServices;
-
 namespace DungeonSlime;
 
 public class DungeonSlime : Core
 {
-    private Sprite _slime = new();
-    private Sprite _bat = new();
+    private AnimatedSprite _slime = new();
+    private AnimatedSprite _bat = new();
 
     public DungeonSlime() : base("Dungeon Slime", 1280, 720, false) { }
 
@@ -20,10 +18,10 @@ public class DungeonSlime : Core
     protected override void LoadContent()
     {
         var atlas = TextureAtlas.FromFile(Content, "images/atlas-definition.xml");
-        _slime = atlas.CreateSprite("slime");
+        _slime = atlas.CreateAnimatedSprite("slime-animation");
         _slime.Scale = Vector2.One * 4.0f;
 
-        _bat = atlas.CreateSprite("bat");
+        _bat = atlas.CreateAnimatedSprite("bat-animation");
         _bat.Scale = Vector2.One * 4.0f;
 
         base.LoadContent();
@@ -34,7 +32,8 @@ public class DungeonSlime : Core
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
 
-        // TODO: Add your update logic here
+        _slime.Update(gameTime);
+        _bat.Update(gameTime);
 
         base.Update(gameTime);
     }
