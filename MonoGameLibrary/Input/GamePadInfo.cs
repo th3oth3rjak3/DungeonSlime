@@ -126,5 +126,4 @@ public class GamePadInfo(PlayerIndex playerIndex)
     {
         GamePad.SetVibration(PlayerIndex, 0.0f, 0.0f);
     }
-
 }
