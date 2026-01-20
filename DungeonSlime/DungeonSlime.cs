@@ -1,6 +1,5 @@
 ﻿// https://github.com/MonoGame/MonoGame.Samples/blob/3.8.4/Tutorials/learn-monogame-2d
-// Current Chapter: 12 - Collision Detection
-// Up Next: Chapter 13 - Working With Tilemaps
+// Current: Chapter 13 - Working With Tilemaps
 
 namespace DungeonSlime;
 
