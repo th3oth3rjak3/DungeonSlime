@@ -15,6 +15,9 @@
 #begin images/atlas-definition.xml
 /copy:images/atlas-definition.xml
 
+#begin images/tilemap-definition.xml
+/copy:images/tilemap-definition.xml
+
 #begin images/atlas.png
 /importer:TextureImporter
 /processor:TextureProcessor
