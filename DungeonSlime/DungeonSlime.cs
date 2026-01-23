@@ -29,10 +29,10 @@ public class DungeonSlime : Core
     private Rectangle _roomBounds;
 
     // The sound effect to play when the bat bounces off the edge of the screen.
-    private SoundEffect? _bounceSoundEffect;
+    private SoundEffect _bounceSoundEffect = new([], 0, AudioChannels.Stereo);
 
     // The sound effect to play when the slime eats a bat.
-    private SoundEffect? _collectSoundEffect;
+    private SoundEffect _collectSoundEffect = new([], 0, AudioChannels.Stereo);
 
     public DungeonSlime() : base("Dungeon Slime", 1280, 720, false)
     {
@@ -200,7 +200,7 @@ public class DungeonSlime : Core
             _batVelocity = Vector2.Reflect(_batVelocity, normal);
 
             // Play the bounce sound effect.
-            _bounceSoundEffect?.Play();
+            _bounceSoundEffect.Play();
         }
 
         _batPosition = newBatPosition;
@@ -219,7 +219,7 @@ public class DungeonSlime : Core
             AssignRandomBatVelocity();
 
             // Play the collect sound effect.
-            _collectSoundEffect?.Play();
+            _collectSoundEffect.Play();
         }
 
         base.Update(gameTime);
