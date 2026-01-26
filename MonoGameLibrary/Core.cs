@@ -8,6 +8,7 @@ public class Core : Game
     private static SpriteBatch? s_SpriteBatch;
     private static ContentManager? s_Content;
     private static InputManager? s_Input;
+    private static AudioController? s_Audio;
 
 
     /// <summary>
@@ -71,6 +72,16 @@ public class Core : Game
     public static bool ExitOnEscape { get; set; }
 
     /// <summary>
+    /// Gets a reference to the audio control system.
+    /// </summary>
+    public static AudioController Audio
+    {
+        get => s_Audio
+            ?? throw new NullReferenceException("A core instance must be initialized before Audio can be called");
+        private set => s_Audio = value;
+    }
+
+    /// <summary>
     /// Creates a new Core instance.
     /// </summary>
     /// <param name="title">The title to display.</param>
@@ -130,12 +141,26 @@ public class Core : Game
 
         // Create a new InputManager
         Input = new InputManager();
+
+        // Create a new AudioController.
+        Audio = new AudioController();
+    }
+
+    protected override void UnloadContent()
+    {
+        // Dispose the audio controller.
+        Audio.Dispose();
+
+        base.UnloadContent();
     }
 
     protected override void Update(GameTime gameTime)
     {
         // Update the input manager.
         Input.Update(gameTime);
+
+        // Update the audio controller.
+        Audio.Update();
 
         if (ExitOnEscape && Input.Keyboard.IsKeyDown(Keys.Escape))
         {

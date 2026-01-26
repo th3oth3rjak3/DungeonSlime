@@ -8,3 +8,4 @@ global using System.IO;
 global using System.Xml;
 global using System.Xml.Linq;
 global using MonoGameLibrary.Input;
+global using MonoGameLibrary.Audio;

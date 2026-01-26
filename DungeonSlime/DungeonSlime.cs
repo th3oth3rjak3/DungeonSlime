@@ -3,6 +3,7 @@
 
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
+using MonoGameLibrary.Audio;
 
 namespace DungeonSlime;
 
@@ -30,10 +31,12 @@ public class DungeonSlime : Core
     private Rectangle _roomBounds;
 
     // The sound effect to play when the bat bounces off the edge of the screen.
-    private SoundEffect _bounceSoundEffect = new([], 0, AudioChannels.Stereo);
+    private SoundEffect? _bounceSoundEffect;
 
     // The sound effect to play when the slime eats a bat.
-    private SoundEffect _collectSoundEffect = new([], 0, AudioChannels.Stereo);
+    private SoundEffect? _collectSoundEffect;
+
+    private Song? _themeSong;
 
     public DungeonSlime() : base("Dungeon Slime", 1280, 720, false)
     {
@@ -43,25 +46,25 @@ public class DungeonSlime : Core
     {
         base.Initialize();
 
-        if (_tilemap is null)
-        {
-            throw new NullReferenceException("_tilemap was not initialized in the LoadContent method.");
-        }
+        var tileMap = RequireContent(_tilemap, "_tilemap was not initialized in the LoadContent method.");
+        var themeSong = RequireContent(_themeSong, "_themeSong was not loaded in the LoadContent method.");
+        _ = RequireContent(_bounceSoundEffect, "_bounceSoundEffect was not loaded in the LoadContent method.");
+        _ = RequireContent(_collectSoundEffect, "_collectSoundEffect was not loaded in the LoadContent method.");
 
         var screenBounds = GraphicsDevice.PresentationParameters.Bounds;
         _roomBounds = new Rectangle(
-            (int)_tilemap.TileWidth,
-            (int)_tilemap.TileHeight,
-            screenBounds.Width - (int)_tilemap.TileWidth * 2,
-            screenBounds.Height - (int)_tilemap.TileHeight * 2
+            (int)tileMap.TileWidth,
+            (int)tileMap.TileHeight,
+            screenBounds.Width - (int)tileMap.TileWidth * 2,
+            screenBounds.Height - (int)tileMap.TileHeight * 2
         );
 
         // Initial slime position will be the center of the tilemap.
-        var centerRow = _tilemap.Rows / 2;
-        var centerColumn = _tilemap.Columns / 2;
+        var centerRow = tileMap.Rows / 2;
+        var centerColumn = tileMap.Columns / 2;
         _slimePosition = new(
-            centerColumn * _tilemap.TileWidth,
-            centerRow * _tilemap.TileHeight
+            centerColumn * tileMap.TileWidth,
+            centerRow * tileMap.TileHeight
         );
 
         // Initial bat position will be in the top left corner of the room.
@@ -69,6 +72,9 @@ public class DungeonSlime : Core
 
         // assign the initial random velocity to the bat.
         AssignRandomBatVelocity();
+
+        // Start playing the background music.
+        AudioController.PlaySong(themeSong);
     }
 
     protected override void LoadContent()
@@ -91,19 +97,7 @@ public class DungeonSlime : Core
         _collectSoundEffect = Content.Load<SoundEffect>("audio/collect.wav");
 
         // Load the background theme music.
-        var theme = Content.Load<Song>("audio/theme.ogg");
-
-        // Ensure media player is not already playing on device, if so stop it.
-        if (MediaPlayer.State == MediaState.Playing)
-        {
-            MediaPlayer.Stop();
-        }
-
-        // Play the background theme music.
-        MediaPlayer.Play(theme);
-
-        // Set the theme music to repeat.
-        MediaPlayer.IsRepeating = true;
+        _themeSong = Content.Load<Song>("audio/theme.ogg");
 
         base.LoadContent();
     }
@@ -111,6 +105,8 @@ public class DungeonSlime : Core
     protected override void Update(GameTime gameTime)
     {
         ArgumentNullException.ThrowIfNull(_tilemap);
+        ArgumentNullException.ThrowIfNull(_bounceSoundEffect);
+        ArgumentNullException.ThrowIfNull(_collectSoundEffect);
 
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
             Exit();
@@ -120,13 +116,6 @@ public class DungeonSlime : Core
 
         CheckKeyboardInput(gameTime);
         CheckGamePadInput(gameTime);
-
-        var screenBounds = new Rectangle(
-            0,
-            0,
-            GraphicsDevice.PresentationParameters.BackBufferWidth,
-            GraphicsDevice.PresentationParameters.BackBufferHeight
-        );
 
         var slimeBounds = new Circle(
             (int)(_slimePosition.X + (_slime.Width * 0.5f)),
@@ -201,7 +190,7 @@ public class DungeonSlime : Core
             _batVelocity = Vector2.Reflect(_batVelocity, normal);
 
             // Play the bounce sound effect.
-            _bounceSoundEffect.Play();
+            Audio.PlaySoundEffect(_bounceSoundEffect);
         }
 
         _batPosition = newBatPosition;
@@ -220,7 +209,7 @@ public class DungeonSlime : Core
             AssignRandomBatVelocity();
 
             // Play the collect sound effect.
-            _collectSoundEffect.Play();
+            Audio.PlaySoundEffect(_collectSoundEffect);
         }
 
         base.Update(gameTime);
@@ -291,6 +280,26 @@ public class DungeonSlime : Core
         {
             _slimePosition.X += speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
         }
+
+        // If the M key is pressed, toggle mute state for audio.
+        if (Input.Keyboard.WasKeyJustPressed(Keys.M))
+        {
+            Audio.ToggleMute();
+        }
+
+        // If the + key is pressed, increase the volume.
+        if (Input.Keyboard.WasKeyJustPressed(Keys.OemPlus))
+        {
+            Audio.SongVolume += 0.1f;
+            Audio.SoundEffectVolume += 0.1f;
+        }
+
+        // If the - key is pressed, decrease the volume.
+        if (Input.Keyboard.WasKeyJustPressed(Keys.OemMinus))
+        {
+            Audio.SongVolume -= 0.1f;
+            Audio.SoundEffectVolume -= 0.1f;
+        }
     }
 
     private void CheckGamePadInput(GameTime gameTime)
@@ -344,5 +353,15 @@ public class DungeonSlime : Core
                 _slimePosition.X += speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
         }
+    }
+
+    private static T RequireContent<T>(T? content, string message) where T : class
+    {
+        if (content is null)
+        {
+            throw new NullReferenceException($"{typeof(T).GetType().Name} was null: ${message}");
+        }
+
+        return content;
     }
 }
