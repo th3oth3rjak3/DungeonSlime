@@ -91,13 +91,13 @@ public class DungeonSlime : Core
         _tilemap.Scale = new(4.0f, 4.0f);
 
         // Load the bounce sound effect.
-        _bounceSoundEffect = Content.Load<SoundEffect>("audio/bounce.wav");
+        _bounceSoundEffect = Content.Load<SoundEffect>("audio/bounce");
 
         // Load the collect sound effect.
-        _collectSoundEffect = Content.Load<SoundEffect>("audio/collect.wav");
+        _collectSoundEffect = Content.Load<SoundEffect>("audio/collect");
 
         // Load the background theme music.
-        _themeSong = Content.Load<Song>("audio/theme.ogg");
+        _themeSong = Content.Load<Song>("audio/theme");
 
         base.LoadContent();
     }
