@@ -9,10 +9,7 @@ public class DungeonSlime : Core
     // The background theme song.
     private Song? _themeSong;
 
-    public DungeonSlime() : base("Dungeon Slime", 1280, 720, false)
-    {
-
-    }
+    public DungeonSlime() : base("Dungeon Slime", 1280, 720, false) { }
 
     protected override void Initialize()
     {
