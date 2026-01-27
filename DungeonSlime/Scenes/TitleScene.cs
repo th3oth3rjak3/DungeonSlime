@@ -10,7 +10,6 @@ public class TitleScene : Scene
 {
     private const string DUNGEON_TEXT = "Dungeon";
     private const string SLIME_TEXT = "Slime";
-    private const string PRESS_ENTER_TEXT = "Press Enter To Start";
 
     // The font to use to render normal text.
     private SpriteFont? _font;
@@ -29,12 +28,6 @@ public class TitleScene : Scene
 
     // The origin to set for the slime text.
     private Vector2 _slimeTextOrigin;
-
-    // The position to draw the press enter text at.
-    private Vector2 _pressEnterPos;
-
-    // The origin to set for the press enter text when drawing it.
-    private Vector2 _pressEnterOrigin;
 
     // The texture used for the background pattern.
     private Texture2D? _backgroundPattern;
@@ -77,12 +70,6 @@ public class TitleScene : Scene
         size = _font5x.MeasureString(SLIME_TEXT);
         _slimeTextPos = new Vector2(757, 207);
         _slimeTextOrigin = size * 0.5f;
-
-        // Set the position and origin for the press enter text.
-        size = _font.MeasureString(PRESS_ENTER_TEXT);
-        _pressEnterPos = new Vector2(640, 620);
-        _pressEnterOrigin = size * 0.5f;
-
 
         // Initialize the offset of the background pattern at zero.
         _backgroundOffset = Vector2.Zero;

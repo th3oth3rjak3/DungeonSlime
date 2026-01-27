@@ -1,9 +1,11 @@
-﻿using DungeonSlime.Scenes;
+﻿// https://github.com/MonoGame/MonoGame.Samples/blob/3.8.4/Tutorials/learn-monogame-2d
+// https://github.com/MonoGame/docs.monogame.github.io/tree/main/articles/tutorials/building_2d_games
+
+using DungeonSlime.Scenes;
 using Microsoft.Xna.Framework.Media;
 using MonoGameLibrary.Audio;
 using Gum.Forms;
 using Gum.Forms.Controls;
-using MonoGameLibrary;
 using MonoGameGum;
 
 namespace DungeonSlime;
