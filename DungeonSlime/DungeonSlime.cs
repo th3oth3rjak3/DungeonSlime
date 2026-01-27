@@ -36,7 +36,20 @@ public class DungeonSlime : Core
     // The sound effect to play when the slime eats a bat.
     private SoundEffect? _collectSoundEffect;
 
+    // The theme song that plays in the background.
     private Song? _themeSong;
+
+    // The SpriteFont Description used to draw text.
+    private SpriteFont? _font;
+
+    // Tracks the player's score.
+    private int _score;
+
+    // Defines the position to draw the score text at.
+    private Vector2 _scoreTextPosition;
+
+    // Defines the origin used when drawing the score text.
+    private Vector2 _scoreTextOrigin;
 
     public DungeonSlime() : base("Dungeon Slime", 1280, 720, false)
     {
@@ -48,6 +61,7 @@ public class DungeonSlime : Core
 
         var tileMap = RequireContent(_tilemap, "_tilemap was not initialized in the LoadContent method.");
         var themeSong = RequireContent(_themeSong, "_themeSong was not loaded in the LoadContent method.");
+        var font = RequireContent(_font, "_font was not loaded in the LoadContent method.");
         _ = RequireContent(_bounceSoundEffect, "_bounceSoundEffect was not loaded in the LoadContent method.");
         _ = RequireContent(_collectSoundEffect, "_collectSoundEffect was not loaded in the LoadContent method.");
 
@@ -75,6 +89,14 @@ public class DungeonSlime : Core
 
         // Start playing the background music.
         AudioController.PlaySong(themeSong);
+
+        // Set the position of the score text to align to the left edge of the room bounds,
+        // and to vertically be at the center of the first tile
+        _scoreTextPosition = new Vector2(_roomBounds.Left, tileMap.TileHeight * 0.5f);
+
+        // Set the origin of the text so it is left-centered.
+        float scoreTextYOrigin = font.MeasureString("Score").Y * 0.5f;
+        _scoreTextOrigin = new Vector2(0, scoreTextYOrigin);
     }
 
     protected override void LoadContent()
@@ -98,6 +120,9 @@ public class DungeonSlime : Core
 
         // Load the background theme music.
         _themeSong = Content.Load<Song>("audio/theme");
+
+        // Load the font
+        _font = Content.Load<SpriteFont>("fonts/04B_30");
 
         base.LoadContent();
     }
@@ -210,6 +235,9 @@ public class DungeonSlime : Core
 
             // Play the collect sound effect.
             Audio.PlaySoundEffect(_collectSoundEffect);
+
+            // Increase player's score when bat intersects slime.
+            _score += 100;
         }
 
         base.Update(gameTime);
@@ -218,6 +246,7 @@ public class DungeonSlime : Core
     protected override void Draw(GameTime gameTime)
     {
         ArgumentNullException.ThrowIfNull(_tilemap);
+        ArgumentNullException.ThrowIfNull(_font);
 
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
@@ -228,6 +257,19 @@ public class DungeonSlime : Core
         _slime.Draw(SpriteBatch, _slimePosition);
 
         _bat.Draw(SpriteBatch, _batPosition);
+
+        // Draw the score
+        SpriteBatch.DrawString(
+            _font,
+            $"Score: {_score}",
+            _scoreTextPosition,
+            Color.White,
+            0.0f, // rotation
+            _scoreTextOrigin,
+            1.0f, // scale
+            SpriteEffects.None,
+            0.0f // layer depth
+        );
 
         SpriteBatch.End();
 
