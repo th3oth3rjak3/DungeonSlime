@@ -93,3 +93,5 @@
 #begin images/tilemap-definition.xml
 /copy:images/tilemap-definition.xml
 
+#begin fonts/04b_30.fnt
+/copy:fonts/04b_30.fnt
