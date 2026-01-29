@@ -6,3 +6,4 @@ global using MonoGameLibrary.Graphics;
 global using MonoGameLibrary.Input;
 global using System;
 global using System.Collections.Generic;
+global using System.Linq;
